@@ -14,31 +14,25 @@ dice2 = None
 dice2Roll = 0
 dice1Roll = 0
 guessValue = 6
-winConditon = False
-playerMoney = 0
-betValue = 5
+winCondition = False
+betValue = 0
 
 #Loads money array from bank.csv, and saves it as playerMoney array
-playerMoney = []
+playerMoney = 0
 def loadMoney():
-    global playerMoney
-    with open("bank.csv", "rb") as bank:
-        bankReader = csv.reader(bank)
-        for row in bankReader:
-            playerMoney = row
+    playerMoney = open("bank.csv", "w")
+
 
 def saveMoney():
-    with open("bank.csv", "wb") as bank:
-        bankWriter = csv.writed(bank)
-        bankWriter.writerow(playerMoney)
+    bank
 
 #adds x to betvalue and subtracts that amount from playerMoney
-#TODO playerMoney is out of bounds
+
 def bet(bet):
     global betValue
     global playerMoney
     betValue += bet
-    playerMoney[0] = int(playerMoney[0]) - bet
+    playerMoney[0] = bet + playerMoney[0]
 
 
 #The text of the guessValue
@@ -80,7 +74,7 @@ def diceRoll():
     global dice2
     global dice1Roll
     global dice2Roll
-    global winConditon
+    global winCondition
     roll1 = random.randint(0,5)
     roll2 = random.randint(0,5)
     #loads the sprite by accessing the random number in the array
@@ -89,11 +83,11 @@ def diceRoll():
     dice2 = pyglet.sprite.Sprite(images[roll2],x = 125,y = 0)
     dice2Roll = roll2 + 1
     if guessValue == (dice1Roll + dice2Roll):
-        winConditon = True
+        winCondition = True
     else:
-        winConditon = False
+        winCondition = False
 
-
+#draws window and sprites
 @window.event
 def on_draw():
     window.clear()
@@ -106,21 +100,25 @@ def on_draw():
     betDownTriangle.draw(GL_TRIANGLES)
     guessValueLabel.draw()
     betValueLabel.draw()
-    print (str(guessValue) + " " + str(dice1Roll+dice2Roll)+ " " + str(betValue) + " " + str(playerMoney[0]))
-    if winConditon is True:
+    print (str(guessValue) + " " + str(dice1Roll+dice2Roll)+ " " + str(betValue) + " "  )
+    if winCondition is True:
         winLabel.draw()
+        playerMoney[0] = playerMoney[0] + (2*betValue)
+    saveMoney()
 
 
-
+#safely exits application
 def on_window_close(window):
     event_loop.exit()
     return pyglet.event.EVENT_HANDLED
 
+#rolls dice on space press
 @window.event
 def on_key_press(symbol, modifiers):
     if symbol == key.SPACE:
         diceRoll()
 
+#mouseclick events
 @window.event
 def on_mouse_release(x, y, button, modifiers):
     global guessValue
@@ -129,7 +127,7 @@ def on_mouse_release(x, y, button, modifiers):
     global betValueLabel
 
     #tests if mouseclick is on increase guess value triangle
-    if (x > 500 and x < 550) and (y > 100 and y < 150) and guessValue < 12:
+    if (500 < x < 550) and (100 < y < 150) and guessValue < 12:
         guessValue += 1
         guessValueLabel.text = "Guess: " + str(guessValue)
     #tests if mouseclick is on decrease guess value triangle
@@ -141,7 +139,7 @@ def on_mouse_release(x, y, button, modifiers):
         bet(5)
         betValueLabel.text = "Bet: " + str(betValue)
     #tests if mouseclick is on decrease bet value triangle
-    elif (x > 575 and x < 625) and (y > 0 and y < 50) and betvalue > 0:
+    elif (x > 575 and x < 625) and (y > 0 and y < 50) and betValue > 0:
         bet(-5)
         betValueLabel.text = "Bet: " + str(betValue)
 
@@ -149,7 +147,7 @@ def on_mouse_release(x, y, button, modifiers):
 def main():
     diceRoll()
     loadMoney()
-    print playerMoney
+    print playerMoney[0]
     pyglet.app.run()
 
 
