@@ -2,6 +2,7 @@ import pyglet
 from pyglet.window import key
 import random
 from pyglet.gl import *
+import csv
 
 
 #declaring global variables
@@ -13,6 +14,16 @@ dice2Roll = 0
 dice1Roll = 0
 guessValue = 6
 winConditon = False
+
+#Loads money array from bank.csv, and saves it as playerMoney array
+playerMoney = []
+def loadMoney():
+    with open("bank.csv", "rb") as bank:
+        bankReader = csv.reader(bank)
+        for row in bankReader:
+            playerMoney = row
+        print playerMoney
+
 #The text of the guessValue
 guessValueLabel = pyglet.text.Label(str(guessValue), x=525, y=75,
                                                     anchor_x='center',
@@ -48,7 +59,8 @@ def diceRoll():
     global dice2
     global dice1Roll
     global dice2Roll
-    global winConditon
+
+``    global winConditon
     roll1 = random.randint(0,5)
     roll2 = random.randint(0,5)
     #loads the sprite by accessing the random number in the array
@@ -105,6 +117,7 @@ def on_mouse_release(x, y, button, modifiers):
                                                             color = (0,0,0,255))
 
 def main():
+    loadMoney()
     diceRoll()
     pyglet.app.run()
 
