@@ -3,7 +3,8 @@ from pyglet.window import key
 import random
 from pyglet.gl import *
 import csv
-
+#TODO add money system
+#TODO add account system
 
 #declaring global variables
 window = pyglet.window.Window()
@@ -34,8 +35,10 @@ guessValueLabelLabel = pyglet.text.Label("Guess: ", x = 490, y = 75,
                                                     anchor_y='center',
                                                     color = (0,0,0,255))
 #sets vertex list for triangles
-vlist1 = pyglet.graphics.vertex_list(3, ('v2f', [500,100, 550,100, 525,150]))
-vlist2 = pyglet.graphics.vertex_list(3, ('v2f', [500,50, 550,50, 525,0]))
+valueUpTriangle = pyglet.graphics.vertex_list(3, ('v2f', [500,100, 550,100, 525,150]))
+valueDownTriangle = pyglet.graphics.vertex_list(3, ('v2f', [500,50, 550,50, 525,0]))
+betUpTriangle = pyglet.graphics.vertex_list(3, ('v2f', [575,100, 625,100, 600,150]))
+betDownTriangle = pyglet.graphics.vertex_list(3, ('v2f', [575,50, 625,50, 600,0]))
 #set background color
 pyglet.gl.glClearColor(255,255,255,255)
 #loads array of images
@@ -79,8 +82,10 @@ def on_draw():
     dice1.draw()
     dice2.draw()
     glColor3f(1,0,0)
-    vlist1.draw(GL_TRIANGLES)
-    vlist2.draw(GL_TRIANGLES)
+    valueUpTriangle.draw(GL_TRIANGLES)
+    valueDownTriangle.draw(GL_TRIANGLES)
+    betUpTriangle.draw(GL_TRIANGLES)
+    betDownTriangle.draw(GL_TRIANGLES)
     guessValueLabel.draw()
     guessValueLabelLabel.draw()
     print (str(guessValue) + " " + str(dice1Roll+dice2Roll))
@@ -102,12 +107,14 @@ def on_key_press(symbol, modifiers):
 def on_mouse_release(x, y, button, modifiers):
     global guessValue
     global guessValueLabel
+    #tests if mouseclick is on increase guess value triangle
     if (x > 500 and x < 550) and (y > 100 and y < 150) and guessValue < 12:
         guessValue += 1
         guessValueLabel = pyglet.text.Label(str(guessValue), x=525, y=75,
                                                             anchor_x='center',
                                                             anchor_y='center',
                                                             color = (0,0,0,255))
+    #tests if mouseclick is on decrease guess value triangle
     elif (x > 500 and x <550) and (y > 0 and y < 50) and guessValue > 2:
         guessValue -= 1
         guessValueLabel = pyglet.text.Label(str(guessValue), x=525, y=75,
@@ -116,9 +123,9 @@ def on_mouse_release(x, y, button, modifiers):
                                                             color = (0,0,0,255))
 
 def main():
-    loadMoney()
     diceRoll()
     pyglet.app.run()
+    loadMoney()
 
 
 
