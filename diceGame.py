@@ -59,8 +59,7 @@ def diceRoll():
     global dice2
     global dice1Roll
     global dice2Roll
-
-``    global winConditon
+    global winConditon
     roll1 = random.randint(0,5)
     roll2 = random.randint(0,5)
     #loads the sprite by accessing the random number in the array
