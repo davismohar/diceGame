@@ -110,17 +110,11 @@ def on_mouse_release(x, y, button, modifiers):
     #tests if mouseclick is on increase guess value triangle
     if (x > 500 and x < 550) and (y > 100 and y < 150) and guessValue < 12:
         guessValue += 1
-        guessValueLabel = pyglet.text.Label(str(guessValue), x=525, y=75,
-                                                            anchor_x='center',
-                                                            anchor_y='center',
-                                                            color = (0,0,0,255))
+        guessValueLabel.text = str(guessValue)
     #tests if mouseclick is on decrease guess value triangle
     elif (x > 500 and x <550) and (y > 0 and y < 50) and guessValue > 2:
         guessValue -= 1
-        guessValueLabel = pyglet.text.Label(str(guessValue), x=525, y=75,
-                                                            anchor_x='center',
-                                                            anchor_y='center',
-                                                            color = (0,0,0,255))
+        guessValueLabel.text = str(guessValue)
 
 def main():
     diceRoll()
