@@ -26,11 +26,7 @@ def loadMoney():
         print playerMoney
 
 #The text of the guessValue
-guessValueLabel = pyglet.text.Label(str(guessValue), x=525, y=75,
-                                                    anchor_x='center',
-                                                    anchor_y='center',
-                                                    color = (0,0,0,255))
-guessValueLabelLabel = pyglet.text.Label("Guess: ", x = 490, y = 75,
+guessValueLabel = pyglet.text.Label("Guess: "+str(guessValue), x = 490, y = 75,
                                                     anchor_x='center',
                                                     anchor_y='center',
                                                     color = (0,0,0,255))
@@ -87,7 +83,6 @@ def on_draw():
     betUpTriangle.draw(GL_TRIANGLES)
     betDownTriangle.draw(GL_TRIANGLES)
     guessValueLabel.draw()
-    guessValueLabelLabel.draw()
     print (str(guessValue) + " " + str(dice1Roll+dice2Roll))
     if winConditon is True:
         winLabel.draw()
@@ -110,16 +105,17 @@ def on_mouse_release(x, y, button, modifiers):
     #tests if mouseclick is on increase guess value triangle
     if (x > 500 and x < 550) and (y > 100 and y < 150) and guessValue < 12:
         guessValue += 1
-        guessValueLabel.text = str(guessValue)
+        guessValueLabel.text = "Guess: " + str(guessValue)
     #tests if mouseclick is on decrease guess value triangle
     elif (x > 500 and x <550) and (y > 0 and y < 50) and guessValue > 2:
         guessValue -= 1
-        guessValueLabel.text = str(guessValue)
+        guessValueLabel.text = "Guess :" + str(guessValue)
 
 def main():
     diceRoll()
     pyglet.app.run()
     loadMoney()
+
 
 
 
