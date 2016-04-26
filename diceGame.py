@@ -3,8 +3,6 @@ from pyglet.window import key
 import random
 from pyglet.gl import *
 
-#TODO add money system
-#TODO add account system
 
 #declaring global variables
 window = pyglet.window.Window()
@@ -44,6 +42,7 @@ def saveMoney():
 def bet(bet):
     global betValue
     global playerMoney
+    #checks if the player has the money to make a bet
     if bet <= playerMoney:
         betValue += bet
         playerMoney -= bet
@@ -63,6 +62,21 @@ def loseBet():
     global playerMoney
     playerMoney -= betValue
 
+def drawTriangles():
+    valueUpTriangle.draw(GL_TRIANGLES)
+    valueDownTriangle.draw(GL_TRIANGLES)
+    betUpTriangle.draw(GL_TRIANGLES)
+    betDownTriangle.draw(GL_TRIANGLES)
+
+def drawDice():
+    dice1.draw()
+    dice2.draw()
+
+def drawLabels():
+    guessValueLabel.draw()
+    betValueLabel.draw()
+    playerMoneyLabel.draw()
+
 
 #The text of the guessValue
 guessValueLabel = pyglet.text.Label("Guess: "+str(guessValue), x = 525, y = 75,
@@ -77,10 +91,10 @@ betValueLabel = pyglet.text.Label("Bet: "+str(betValue), x = 600, y= 75,
                                                     color = (0,0,0,255))
 #The text of playerMoney
 playerMoneyLabel = pyglet.text.Label("Bank: "+str(playerMoney),
-                                                    x = 550,
+                                                    x = 500,
                                                     y = 300,
                                                     color = (0,0,0,255))
-#sets vertex list for triangles
+#sets coordinates for triangles
 valueUpTriangle = pyglet.graphics.vertex_list(3, ('v2f', [500,100, 550,100, 525,150]))
 valueDownTriangle = pyglet.graphics.vertex_list(3, ('v2f', [500,50, 550,50, 525,0]))
 betUpTriangle = pyglet.graphics.vertex_list(3, ('v2f', [575,100, 625,100, 600,150]))
@@ -88,6 +102,7 @@ betDownTriangle = pyglet.graphics.vertex_list(3, ('v2f', [575,50, 625,50, 600,0]
 
 #set background color
 pyglet.gl.glClearColor(255,255,255,255)
+glColor3f(1,0,0)
 
 #loads array of images
 images = [
@@ -141,23 +156,13 @@ def diceRoll():
 #draws window and sprites
 @window.event
 def on_draw():
-    global playerMoney
-    global betValue
     window.clear()
-    dice1.draw()
-    dice2.draw()
-    glColor3f(1,0,0)
-    valueUpTriangle.draw(GL_TRIANGLES)
-    valueDownTriangle.draw(GL_TRIANGLES)
-    betUpTriangle.draw(GL_TRIANGLES)
-    betDownTriangle.draw(GL_TRIANGLES)
-    guessValueLabel.draw()
-    betValueLabel.draw()
-    playerMoneyLabel.draw()
+    drawDice()
+    drawTriangles()
+    drawLabels()
     print (str(guessValue) + " " + str(dice1Roll+dice2Roll)+ " " + str(betValue))
     if winCondition is True:
         winLabel.draw()
-        playerMoney = playerMoney + (12*betValue)
     else:
         bet(0)
     if betValue >= playerMoney:
@@ -202,6 +207,7 @@ def on_mouse_release(x, y, button, modifiers):
 
 
 def main():
+    print("Guess Roll Bet")
     loadMoney()
     diceRoll()
     pyglet.app.run()
