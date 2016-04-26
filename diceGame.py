@@ -2,7 +2,7 @@ import pyglet
 from pyglet.window import key
 import random
 from pyglet.gl import *
-import csv
+
 #TODO add money system
 #TODO add account system
 
@@ -16,23 +16,52 @@ dice1Roll = 0
 guessValue = 6
 winCondition = False
 betValue = 0
+playerMoney = 0
 
 #Loads money array from bank.csv, and saves it as playerMoney array
-playerMoney = 0
 def loadMoney():
-    playerMoney = open("bank.csv", "w")
+    global bank
+    global playerMoney
+    bank = open("bank.txt", "r+")
+    #readline returns text of first line
+    playerMoney = int(bank.readline())
+    #closes file
+    bank.close()
 
-
+#writes playerMoney to bank.txt
 def saveMoney():
-    bank
+    global bank
+    bank = open("bank.txt", "r+")
+    #goes to beginning of file
+    bank.seek(0)
+    #writes playerMoney to first line
+    bank.write(str(playerMoney))
+    #closes file
+    bank.close()
 
 #adds x to betvalue and subtracts that amount from playerMoney
-
+#adds bet to betValue and subtracts bet from playerMoney
 def bet(bet):
     global betValue
     global playerMoney
-    betValue += bet
-    playerMoney[0] = bet + playerMoney[0]
+    if bet <= playerMoney:
+        betValue += bet
+        playerMoney -= bet
+        betValueLabel.text = "Bet: " + str(betValue)
+        playerMoneyLabel.text = "Bank: " + str(playerMoney)
+    saveMoney()
+
+#adds winnings to playerMoney
+def winBet():
+    global betValue
+    global playerMoney
+    playerMoney = playerMoney + betValue*12
+
+#subtracts betValue from playerMoney
+def loseBet():
+    global betValue
+    global playerMoney
+    playerMoney -= betValue
 
 
 #The text of the guessValue
@@ -46,13 +75,20 @@ betValueLabel = pyglet.text.Label("Bet: "+str(betValue), x = 600, y= 75,
                                                     anchor_x='center',
                                                     anchor_y='center',
                                                     color = (0,0,0,255))
+#The text of playerMoney
+playerMoneyLabel = pyglet.text.Label("Bank: "+str(playerMoney),
+                                                    x = 550,
+                                                    y = 300,
+                                                    color = (0,0,0,255))
 #sets vertex list for triangles
 valueUpTriangle = pyglet.graphics.vertex_list(3, ('v2f', [500,100, 550,100, 525,150]))
 valueDownTriangle = pyglet.graphics.vertex_list(3, ('v2f', [500,50, 550,50, 525,0]))
 betUpTriangle = pyglet.graphics.vertex_list(3, ('v2f', [575,100, 625,100, 600,150]))
 betDownTriangle = pyglet.graphics.vertex_list(3, ('v2f', [575,50, 625,50, 600,0]))
+
 #set background color
 pyglet.gl.glClearColor(255,255,255,255)
+
 #loads array of images
 images = [
     pyglet.image.load("dice1.png"),
@@ -62,6 +98,8 @@ images = [
     pyglet.image.load("dice5.png"),
     pyglet.image.load("dice6.png"),
 ]
+
+#Label with win announcement
 winLabel = pyglet.text.Label("You Win!",
                           font_name='Times New Roman',
                           font_size=36,
@@ -69,6 +107,14 @@ winLabel = pyglet.text.Label("You Win!",
                           anchor_x='center', anchor_y='center',
                           color=(0,0,0,255))
 
+#Label with out of money announcement
+outOfMoneyLabel = pyglet.text.Label("Out of money.",
+                                font_size=36,
+                                x=window.width//2, y=(window.height//2)+100,
+                                anchor_x='center', anchor_y='center',
+                                color=(0,0,0,255))
+#Rolls 2 die and loads correspoding images
+@window.event
 def diceRoll():
     global dice1
     global dice2
@@ -82,14 +128,21 @@ def diceRoll():
     dice1Roll = roll1 + 1
     dice2 = pyglet.sprite.Sprite(images[roll2],x = 125,y = 0)
     dice2Roll = roll2 + 1
+    #matches guessvalue to sum of rolls
     if guessValue == (dice1Roll + dice2Roll):
         winCondition = True
+        winBet()
     else:
         winCondition = False
+        loseBet()
+    saveMoney()
+    on_draw()
 
 #draws window and sprites
 @window.event
 def on_draw():
+    global playerMoney
+    global betValue
     window.clear()
     dice1.draw()
     dice2.draw()
@@ -100,22 +153,28 @@ def on_draw():
     betDownTriangle.draw(GL_TRIANGLES)
     guessValueLabel.draw()
     betValueLabel.draw()
-    print (str(guessValue) + " " + str(dice1Roll+dice2Roll)+ " " + str(betValue) + " "  )
+    playerMoneyLabel.draw()
+    print (str(guessValue) + " " + str(dice1Roll+dice2Roll)+ " " + str(betValue))
     if winCondition is True:
         winLabel.draw()
-        playerMoney[0] = playerMoney[0] + (2*betValue)
-    saveMoney()
+        playerMoney = playerMoney + (12*betValue)
+    else:
+        bet(0)
+    if betValue >= playerMoney:
+        outOfMoneyLabel.draw()
+
 
 
 #safely exits application
 def on_window_close(window):
     event_loop.exit()
     return pyglet.event.EVENT_HANDLED
+    bank.close()
 
 #rolls dice on space press
 @window.event
 def on_key_press(symbol, modifiers):
-    if symbol == key.SPACE:
+    if (symbol == key.SPACE) and (betValue <= playerMoney):
         diceRoll()
 
 #mouseclick events
@@ -133,25 +192,18 @@ def on_mouse_release(x, y, button, modifiers):
     #tests if mouseclick is on decrease guess value triangle
     elif (x > 500 and x <550) and (y > 0 and y < 50) and guessValue > 2:
         guessValue -= 1
-        guessValueLabel.text = "Guess :" + str(guessValue)
+        guessValueLabel.text = "Guess: " + str(guessValue)
     #tests if mouseclick is on increase bet value triangle
-    elif (x > 575 and x < 625) and (y > 100 and y < 150) and playerMoney[0] > 5:
+    elif (x > 575 and x < 625) and (y > 100 and y < 150) and playerMoney > 5:
         bet(5)
-        betValueLabel.text = "Bet: " + str(betValue)
     #tests if mouseclick is on decrease bet value triangle
     elif (x > 575 and x < 625) and (y > 0 and y < 50) and betValue > 0:
         bet(-5)
-        betValueLabel.text = "Bet: " + str(betValue)
 
 
 def main():
-    diceRoll()
     loadMoney()
-    print playerMoney[0]
+    diceRoll()
     pyglet.app.run()
-
-
-
-
 
 main()
